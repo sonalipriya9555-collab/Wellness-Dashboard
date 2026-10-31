@@ -1,0 +1,21 @@
+PJ2 Wellness Dataset: Emily Park, 1 Jan to 31 Dec 2025 (365 rows, one row per day)
+Emily Park is an invented person (age 35, highly active, inconsistent sleeper).
+
+date                    Day, YYYY-MM-DD
+day_of_week             Monday to Sunday
+steps                   Steps taken that day
+distance_km             Distance walked or run, km
+calories_burned         Total calories burned (resting + active)
+exercise_minutes        Minutes of deliberate exercise
+exercise_type           Weight Training, Dancing, Walking, Running, Yoga or None
+avg_heart_rate_bpm      Average heart rate during the day
+resting_heart_rate_bpm  Resting heart rate (lower is generally fitter)
+hrv_ms                  Heart-rate variability in ms (higher usually means better recovery)
+sleep_hours             Hours slept the night ending that morning
+deep_sleep_pct          Share of sleep that was deep sleep, %
+bedtime / wake_time     24-hour clock, HH:MM
+sleep_score             0 to 100 overall sleep quality
+stress_score            1 to 10 (higher is more stress). A dashboard can turn this into a label such as Low / Moderate / High
+water_liters            Water logged, litres
+weight_kg               Morning weight
+mood_1to5               Self-reported mood, 1 low to 5 high
