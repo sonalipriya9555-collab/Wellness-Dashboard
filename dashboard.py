@@ -13,6 +13,52 @@ if "theme_name" not in st.session_state: st.session_state.theme_name = "Blush Pi
 theme = THEMES[st.session_state.theme_name]
 apply_theme(theme)
 
+# Hide Streamlit's top toolbar/header (the dark strip containing "Fork").
+st.markdown(
+    """
+    <style>
+    [data-testid="stToolbar"] {
+        display: none !important;
+    }
+    [data-testid="stHeader"] {
+        display: none !important;
+    }
+    [data-testid="stDecoration"] {
+        display: none !important;
+    }
+    #MainMenu, footer {
+        visibility: hidden !important;
+    }
+
+    /* Sidebar navigation: pink normally, lighter pink on hover. */
+    [data-testid="stSidebar"] div.stButton > button[kind="secondary"] {
+        background: #D99AA4 !important;
+        color: #FFFFFF !important;
+        border: 1px solid #D99AA4 !important;
+    }
+    [data-testid="stSidebar"] div.stButton > button[kind="secondary"]:hover {
+        background: #F4DADD !important;
+        color: #563A40 !important;
+        border-color: #F4DADD !important;
+    }
+    [data-testid="stSidebar"] div.stButton > button[kind="primary"] {
+        background: #B77B84 !important;
+        color: #FFFFFF !important;
+        border: 1px solid #B77B84 !important;
+    }
+    [data-testid="stSidebar"] div.stButton > button[kind="primary"]:hover {
+        background: #F4DADD !important;
+        color: #563A40 !important;
+        border-color: #F4DADD !important;
+    }
+    .block-container {
+        padding-top: 2rem;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 def header(title, subtitle):
     st.markdown(f"<div class='page-heading'><h1>{title}</h1><p>{subtitle}</p></div>", unsafe_allow_html=True)
 
@@ -107,24 +153,55 @@ def charts(data):
 
 def benchmarks(data):
     header("Wellness Benchmarks","General references to help you track progress—not pass-or-fail scores.")
-    if data.empty: st.info("No records for this date range."); return
-    items=[("👟","Daily steps","steps",8000,"steps/day","8,000 is an illustrative personal goal, not a universal requirement."),
-           ("🌙","Sleep","sleep_hours",7,"hours/night","Adults generally need at least 7 hours of sleep."),
-           ("🏃","Exercise","exercise_minutes",150/7,"minutes/day average","WHO guidance is 150–300 minutes of moderate activity weekly."),
-           ("💧","Water intake","water_liters",2,"litres/day","2 litres is an illustrative comparison; needs vary.")]
-    cols=st.columns(2)
-    for i,(icon,label,field,target,unit,note) in enumerate(items):
-        with cols[i%2]:
-            st.markdown("<div class='benchmark-card'>",unsafe_allow_html=True); st.markdown(f"### {icon} {label}"); st.caption(note)
-            value=metric_average(data,field)
-            if value is None: st.info("No data available.")
-            else:
-                st.metric("Selected-period average",f"{format_value(value,1)} {unit}")
-                ratio=max(0,min(float(value)/target,1)); st.progress(ratio,text=f"{ratio*100:.0f}% of comparison target")
-                st.success("Meeting this reference goal.") if value>=target else st.info("A possible goal to work toward at your own pace.")
-            st.markdown("</div>",unsafe_allow_html=True)
+    if data.empty:
+        st.info("No records for this date range.")
+        return
+
+    items = [
+        ("👟", "Daily steps", "steps", 8000, "steps/day",
+         "8,000 is an illustrative personal goal, not a universal requirement."),
+        ("🌙", "Sleep", "sleep_hours", 7, "hours/night",
+         "Adults generally need at least 7 hours of sleep."),
+        ("🏃", "Exercise", "exercise_minutes", 150 / 7, "minutes/day average",
+         "WHO guidance is 150–300 minutes of moderate activity weekly."),
+        ("💧", "Water intake", "water_liters", 2, "litres/day",
+         "2 litres is an illustrative comparison; needs vary."),
+    ]
+
+    cols = st.columns(2)
+    for i, (icon, label, field, target, unit, note) in enumerate(items):
+        with cols[i % 2]:
+            with st.container(border=True):
+                st.markdown(f"### {icon} {label}")
+                st.caption(note)
+
+                value = metric_average(data, field)
+                if value is None:
+                    st.info("No data available.")
+                else:
+                    st.metric(
+                        "Selected-period average",
+                        f"{format_value(value, 1)} {unit}"
+                    )
+
+                    ratio = max(0, min(float(value) / target, 1))
+                    st.progress(
+                        ratio,
+                        text=f"{ratio * 100:.0f}% of comparison target"
+                    )
+
+                    if value >= target:
+                        st.success("Meeting this reference goal.")
+                    else:
+                        st.info(
+                            "A possible goal to work toward at your own pace."
+                        )
+
     st.markdown("### Reference sources")
-    st.markdown("- [CDC: About Sleep](https://www.cdc.gov/sleep/about/index.html)\n- [WHO: Physical Activity](https://www.who.int/news-room/fact-sheets/detail/physical-activity)")
+    st.markdown(
+        "- [CDC: About Sleep](https://www.cdc.gov/sleep/about/index.html)\n"
+        "- [WHO: Physical Activity](https://www.who.int/news-room/fact-sheets/detail/physical-activity)"
+    )
     st.caption("This educational dashboard does not provide medical advice.")
 
 def coaching(data):
